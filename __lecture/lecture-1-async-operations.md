@@ -85,13 +85,13 @@ const App = () => {
     fetch("/hockey")
       .then((res) => res.json())
       .then((scores) => {
-        // TODO
+        dispatch(receiveHockeyScores(scores));
       });
 
     fetch("/baseball")
       .then((res) => res.json())
       .then((scores) => {
-        // TODO
+        dispatch(receiveBasbellScores(scores));
       });
   }, []);
 
@@ -119,14 +119,51 @@ const App = () => {
 
   React.useEffect(() => {
     // Dispatch `receiveAllScores` after BOTH fetches have completed
+    .then(res => res.json())
+    .then(scores => {
+      dispatch(receiveHOckeyScores(scores))
+    })
+    .then(() => fetch('/baseball'))
+    .then(res => res.json())
+    .then(scores => {
+      dispatch(receiveBaseballScores(scores))
+    })
+    .then(() => {
+      dispatch(receiveAllData())
+    })
 
-    fetch("/hockey").then((scores) => {
+    // fetch("/hockey").then((scores) => {
+    //   dispatch(receiveHockeyScores(scores));
+    // });
+
+    // fetch("/baseball").then((scores) => {
+    //   dispatch(receiveBaseballScores(scores));
+    // });
+  }, []);
+
+  return <Scores />;
+};
+```
+
+```js
+const receiveAllScores = () => ({
+  type: "RECEIVE_ALL_SCORES",
+});
+
+const App = () => {
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    // Dispatch `receiveAllScores` after BOTH fetches have completed
+    const hockeyPromise = fetch("/hockey").then((scores) => {
       dispatch(receiveHockeyScores(scores));
     });
-
-    fetch("/baseball").then((scores) => {
+    const baseballPromise = fetch("/baseball").then((scores) => {
       dispatch(receiveBaseballScores(scores));
     });
+    Promis.all([hockeyPromise, basbeballPromise]).then(() =>
+      dispatch(receiveAllData())
+    );
   }, []);
 
   return <Scores />;
